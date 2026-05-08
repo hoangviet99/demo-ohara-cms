@@ -7,10 +7,10 @@ import '../components/layout/cms.css';
 export default function CmsLayout() {
   return (
     <div>
-      {/* Thanh header cố định trên cùng */}
+      {/* Sticky top navigation bar */}
       <Topbar />
 
-      {/* Sidebar + nội dung trang nằm cạnh nhau */}
+      {/* Sidebar and main content side-by-side */}
       <div className="cms-body">
         <Sidebar />
         <main className="cms-main">

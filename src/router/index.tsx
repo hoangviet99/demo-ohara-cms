@@ -18,13 +18,13 @@ import OrderDetailPage  from "../pages/cms/OrderDetailPage";
 import NotFoundPage from "../pages/NotFoundPage";
 
 export const router = createBrowserRouter([
-  // "/" → redirect thẳng vào dashboard
+  // "/" → direct redirect to dashboard
   {
     path: "/",
     element: <Navigate to="/cms/dashboard" replace />,
   },
 
-  // Auth routes (không có Topbar/Sidebar)
+  // Auth routes (without Topbar/Sidebar)
   {
     element: <AuthLayout />,
     children: [
@@ -32,12 +32,12 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // CMS routes — bọc trong CmsLayout (có Topbar + Sidebar)
+  // CMS routes — wrapped in CmsLayout (with Topbar + Sidebar)
   {
     path: "/cms",
     element: <CmsLayout />,
     children: [
-      // /cms  →  redirect về /cms/dashboard
+      // /cms  →  redirect to /cms/dashboard
       { index: true, element: <Navigate to="/cms/dashboard" replace /> },
 
       { path: "dashboard",  element: <DashboardPage /> },

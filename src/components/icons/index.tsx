@@ -12,7 +12,7 @@ interface IconProps {
 
 /**
  * Base Icon Wrapper
- * Giúp giảm lặp code SVG boilerplate cho tất cả icon
+ * Reduces SVG boilerplate across all icons
  */
 const IconWrapper = ({ 
   size = 20, 
