@@ -22,7 +22,6 @@ export const router = createBrowserRouter([
     ],
   },
 
-
   // 404 fallback
   {
     path: "*",
