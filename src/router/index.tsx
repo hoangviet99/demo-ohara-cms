@@ -1,9 +1,9 @@
 import { createBrowserRouter, Navigate } from "react-router";
-import AuthLayout from "../layouts/AuthLayout";
-import CmsLayout from "../layouts/CmsLayout";
-import LoginPage from "../pages/auth/LoginPage";
-import DashboardPage from "../pages/cms/DashboardPage";
-import NotFoundPage from "../pages/NotFoundPage";
+import AuthLayout from "../components/layouts/AuthLayout";
+import CmsLayout from "../components/layouts/CmsLayout";
+import LoginPage from "../pages/login";
+import DashboardPage from "../pages/dashboard";
+import NotFoundPage from "../pages/not-found";
 
 export const router = createBrowserRouter([
   {
@@ -20,7 +20,7 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    path: "/cms",
+    path: "/dashboard",
     element: <CmsLayout />,
     children: [
       {

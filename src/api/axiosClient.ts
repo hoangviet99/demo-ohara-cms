@@ -1,18 +1,18 @@
 import axios from 'axios';
 
-// 1. Khởi tạo instance
+// 1. Initialize axios instance
 const axiosClient = axios.create({
-    // Vite sử dụng import.meta.env thay vì process.env
+    // Vite uses import.meta.env instead of process.env
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1',
     headers: {
         'Content-Type': 'application/json',
     },
 });
 
-// 2. Request Interceptor: Tự động thêm Token vào mỗi Request
+// 2. Request Interceptor: Automatically add Token to each request
 axiosClient.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('access_token'); // Hoặc lấy từ Redux/Cookies
+        const token = localStorage.getItem('access_token'); // Or retrieve from Redux/Cookies
         if (token && config.headers) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -23,16 +23,16 @@ axiosClient.interceptors.request.use(
     }
 );
 
-// 3. Response Interceptor: Xử lý kết quả trả về hoặc lỗi chung
+// 3. Response Interceptor: Handle response data or global errors
 axiosClient.interceptors.response.use(
     (response) => {
-        // Trả về dữ liệu trực tiếp thay vì bọc trong đối tượng axios
+        // Return data directly instead of the full axios response object
         return response.data;
     },
     (error) => {
-        // Xử lý khi Token hết hạn hoặc không có quyền (401, 403)
+        // Handle token expiration or unauthorized access (401, 403)
         if (error.response && error.response.status === 401) {
-            console.error("Token hết hạn hoặc không hợp lệ. Đang chuyển hướng...");
+            console.error("Token expired or invalid. Redirecting...");
             localStorage.removeItem('access_token');
             window.location.href = '/login';
         }
