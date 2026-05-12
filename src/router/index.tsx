@@ -1,28 +1,34 @@
 import { createBrowserRouter, Navigate } from "react-router";
 import AuthLayout from "../layouts/AuthLayout";
-
-// Auth pages
+import CmsLayout from "../layouts/CmsLayout";
 import LoginPage from "../pages/auth/LoginPage";
-
-// Fallback
+import DashboardPage from "../pages/cms/DashboardPage";
 import NotFoundPage from "../pages/NotFoundPage";
 
 export const router = createBrowserRouter([
-  // "/" → direct redirect to dashboard
   {
     path: "/",
-    element: <Navigate to="/cms/dashboard" replace />,
+    element: <Navigate to="/login" replace />,
   },
-
-  // Auth routes (without Topbar/Sidebar)
   {
     element: <AuthLayout />,
     children: [
-      { path: "/login", element: <LoginPage /> },
+      {
+        path: "/login",
+        element: <LoginPage />,
+      },
     ],
   },
-
-  // 404 fallback
+  {
+    path: "/cms",
+    element: <CmsLayout />,
+    children: [
+      {
+        index: true,
+        element: <DashboardPage />,
+      },
+    ],
+  },
   {
     path: "*",
     element: <NotFoundPage />,
