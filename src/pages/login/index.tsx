@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { login } from '../../api/auth/login';
+import { login as loginApi } from '../../api/auth/login';
+import { useAuth } from '../../context/AuthContext';
 import { ShoppingBagIcon } from '../../components/icons/ShoppingBagIcon';
 import { CustomButton } from '../../components/common/CustomButton';
 import { AxiosError } from 'axios';
@@ -12,6 +13,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { login: loginContext } = useAuth();
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -20,20 +22,31 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const response = await login({ email, password });
+      const response = await loginApi({ email, password });
       
-      // Extract the access_token from the standard API response structure
-      const token = response.data.access_token;
+      // Extract the data from the standard API response structure
+      const userData = response.data;
+      const token = userData.access_token;
       
       if (token) {
-        localStorage.setItem('access_token', token);
+        // Prepare User object for Context
+        const userForContext = {
+          id: userData.id,
+          username: userData.username,
+          email: userData.email,
+          full_name: userData.full_name,
+          roles: userData.roles,
+        };
+        
+        // Use AuthContext to set global state
+        loginContext(token, userForContext);
       }
       
       // Redirect to dashboard after successful login
       navigate('/dashboard');
     } catch (error) {
       const err = error as AxiosError<{ message: string }>;
-      setError(err.response?.data?.message || '');
+      setError(err.response?.data?.message || 'Login failed');
     } finally {
       setIsLoading(false);
     }

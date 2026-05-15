@@ -23,12 +23,15 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Settings',   icon: <SettingsIcon size={18} />,        path: '/settings' },
 ];
 
+import { useAuth } from '../../context/AuthContext';
+
 export default function Sidebar() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const handleLogout = () => {
-    localStorage.removeItem('access_token');
+    logout();
     navigate('/login');
   };
 
