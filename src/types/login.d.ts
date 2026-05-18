@@ -17,11 +17,5 @@ export interface LoginResponse {
 
 export interface UserInfoByTokenResponse {
   message: string;
-  data: {
-    id: number;
-    username: string;
-    email: string;
-    full_name: string;
-    roles: string[];
-  };
+  data: UserInfoByToken;
 }

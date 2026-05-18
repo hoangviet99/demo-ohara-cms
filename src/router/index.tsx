@@ -30,11 +30,10 @@ export const router = createBrowserRouter([
     element: <ProtectedRoute />,
     children: [
       {
-        path: "/dashboard",
         element: <CmsLayout />,
         children: [
           {
-            index: true,
+            path: "/dashboard",
             element: <DashboardPage />,
           },
         ],

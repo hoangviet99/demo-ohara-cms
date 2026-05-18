@@ -1,4 +1,4 @@
-export interface User {
+export interface UserInfoByToken {
   id: number;
   username: string;
   email: string;
@@ -7,9 +7,9 @@ export interface User {
 }
 
 export interface AuthContextType {
-  user: User | null;
+  user: UserInfoByToken | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (token: string, userData: User) => void;
+  login: (token: string, userData: UserInfoByToken) => void;
   logout: () => void;
 }

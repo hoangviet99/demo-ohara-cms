@@ -1,5 +1,4 @@
 import axiosClient from "../axiosClient";
-import type { User } from "../../types/auth";
 import type { UserInfoByTokenResponse } from "../../types/login";
 
 /**
