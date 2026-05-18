@@ -15,8 +15,8 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
       if (token) {
         try {
           // Verify token and fetch the latest user data
-          const userData = await getUserInfoByToken();
-          setUser(userData);
+          const response = await getUserInfoByToken();
+          setUser(response.data);
           setIsAuthenticated(true);
         } catch (error) {
           console.error("Failed to verify token on load:", error);
