@@ -1,4 +1,3 @@
-
 import { IconWrapper } from "./index";
 import type { IconProps } from "./index";
 

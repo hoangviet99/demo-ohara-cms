@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import type { User } from '../../../types/user';
+import { Input } from '../../../components/common/Input';
+import { SwitchButton } from '../../../components/common/SwitchButton';
 
 interface UserFormProps {
   initialData?: Partial<User>;
@@ -55,54 +57,42 @@ export default function UserForm({ initialData, onSubmit, isLoading, isEdit = fa
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl bg-white p-6 rounded-xl border border-slate-200">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Username *</label>
-          <input
-            type="text"
-            name="username"
-            value={formData.username || ''}
-            onChange={handleChange}
-            required
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
-        </div>
+        <Input
+          label="Username *"
+          type="text"
+          name="username"
+          value={formData.username || ''}
+          onChange={handleChange}
+          required
+        />
         
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Email *</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email || ''}
-            onChange={handleChange}
-            required
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
-        </div>
+        <Input
+          label="Email *"
+          type="email"
+          name="email"
+          value={formData.email || ''}
+          onChange={handleChange}
+          required
+        />
 
         {!isEdit && (
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Password *</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password || ''}
-              onChange={handleChange}
-              required={!isEdit}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
-          </div>
+          <Input
+            label="Password *"
+            type="password"
+            name="password"
+            value={formData.password || ''}
+            onChange={handleChange}
+            required={!isEdit}
+          />
         )}
 
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
-          <input
-            type="text"
-            name="full_name"
-            value={formData.full_name || ''}
-            onChange={handleChange}
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
-        </div>
+        <Input
+          label="Full Name"
+          type="text"
+          name="full_name"
+          value={formData.full_name || ''}
+          onChange={handleChange}
+        />
       </div>
 
       <div>
@@ -125,17 +115,13 @@ export default function UserForm({ initialData, onSubmit, isLoading, isEdit = fa
       </div>
 
       {!isEdit && (
-        <div>
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              name="is_active"
-              checked={formData.is_active}
-              onChange={handleChange}
-              className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
-            />
-            <span className="text-sm font-medium text-slate-700">Active</span>
-          </label>
+        <div className="pt-2">
+          <SwitchButton
+            name="is_active"
+            checked={!!formData.is_active}
+            onChange={handleChange}
+            label="Active"
+          />
         </div>
       )}
 
