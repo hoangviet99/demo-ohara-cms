@@ -7,6 +7,10 @@ import NotFoundPage from "../pages/not-found";
 import ProtectedRoute from "./ProtectedRoute";
 import GuestRoute from "./GuestRoute";
 
+import UserListPage from "../pages/users/index";
+import CreateUserPage from "../pages/users/create";
+import UpdateUserPage from "../pages/users/update";
+
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -35,6 +39,18 @@ export const router = createBrowserRouter([
           {
             path: "/dashboard",
             element: <DashboardPage />,
+          },
+          {
+            path: "/users",
+            element: <UserListPage />,
+          },
+          {
+            path: "/users/create",
+            element: <CreateUserPage />,
+          },
+          {
+            path: "/users/update/:id",
+            element: <UpdateUserPage />,
           },
         ],
       },

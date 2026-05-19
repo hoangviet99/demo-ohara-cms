@@ -6,7 +6,6 @@ import { ShoppingBagIcon } from '../../components/icons/ShoppingBagIcon';
 import { CustomButton } from '../../components/common/CustomButton';
 import { AxiosError } from 'axios';
 
-import type { LoginResponse } from '../../types/login';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
