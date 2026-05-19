@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { FormEvent } from 'react';
+
 import { useNavigate } from 'react-router';
 import { userApi } from '../../api/user';
 import type { User, PaginatedData } from '../../types/user';
@@ -13,10 +13,6 @@ export default function UserListPage() {
   const [data, setData] = useState<PaginatedData<User> | null>(null);
   const [loading, setLoading] = useState(false);
   const [keyword, setKeyword] = useState('');
-  const [roleFilter, setRoleFilter] = useState('All');
-  const [statusFilter, setStatusFilter] = useState('All');
-  
-  // Real active filters that are used for fetching
   const [filters, setFilters] = useState({
     keyword: '',
     role: 'All',
@@ -24,6 +20,13 @@ export default function UserListPage() {
     page: 1,
     limit: 10,
   });
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFilters((prev) => ({ ...prev, keyword, page: 1 }));
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [keyword]);
 
   useEffect(() => {
     fetchUsers();
@@ -47,39 +50,12 @@ export default function UserListPage() {
     }
   };
 
-  const handleSearch = (e?: FormEvent) => {
-    if (e) e.preventDefault();
-    setFilters({ ...filters, keyword, role: roleFilter, status: statusFilter, page: 1 });
-  };
-
-  const handleReset = () => {
-    setKeyword('');
-    setRoleFilter('All');
-    setStatusFilter('All');
-    setFilters({ keyword: '', role: 'All', status: 'All', page: 1, limit: 10 });
-  };
-
   const handlePageChange = (newPage: number) => {
     if (newPage < 1 || !data || newPage > data.total_pages) return;
     setFilters({ ...filters, page: newPage });
   };
 
-  const handleStatusToggle = async (user: User) => {
-    try {
-      await userApi.updateStatus(user.id, !user.is_active);
-      // Optimistic update
-      if (data) {
-        setData({
-          ...data,
-          items: data.items.map((u) => (u.id === user.id ? { ...u, is_active: !u.is_active } : u)),
-        });
-      }
-    } catch (error: any) {
-      const msg = error.response?.data?.message || 'Failed to update status';
-      alert(msg);
-      console.error('Failed to update status', error);
-    }
-  };
+
 
   const handleDelete = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
@@ -94,19 +70,7 @@ export default function UserListPage() {
     }
   };
 
-  const renderStatusSwitch = (user: User) => {
-    return (
-      <label className="relative inline-flex items-center cursor-pointer">
-        <input 
-          type="checkbox" 
-          className="sr-only peer" 
-          checked={user.is_active}
-          onChange={() => handleStatusToggle(user)}
-        />
-        <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
-      </label>
-    );
-  };
+
 
   return (
     <div className="p-6 h-full flex flex-col bg-slate-50/50">
@@ -127,7 +91,7 @@ export default function UserListPage() {
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
         {/* Filter Section */}
         <div className="p-4 border-b border-slate-100 bg-white">
-          <form onSubmit={handleSearch} className="flex flex-wrap gap-4 items-center">
+          <div className="flex flex-wrap gap-4 items-center">
             <div className="relative flex-grow max-w-md">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                 <SearchIcon size={16} />
@@ -142,8 +106,8 @@ export default function UserListPage() {
             </div>
 
             <select
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
+              value={filters.role}
+              onChange={(e) => setFilters({ ...filters, role: e.target.value, page: 1 })}
               className="border border-slate-300 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
               <option value="All">Role: All</option>
@@ -153,31 +117,16 @@ export default function UserListPage() {
             </select>
 
             <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              value={filters.status}
+              onChange={(e) => setFilters({ ...filters, status: e.target.value, page: 1 })}
               className="border border-slate-300 rounded-lg py-2 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
               <option value="All">Status: All</option>
-              <option value="active">Active</option>
-              <option value="blocked">Blocked</option>
+              <option value="Active">Active</option>
+              <option value="Blocked">Blocked</option>
+              <option value="Pending">Pending</option>
             </select>
-
-            <div className="flex gap-2 ml-auto">
-              <button
-                type="submit"
-                className="px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800"
-              >
-                Search
-              </button>
-              <button
-                type="button"
-                onClick={handleReset}
-                className="px-4 py-2 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-slate-50"
-              >
-                Reset
-              </button>
-            </div>
-          </form>
+          </div>
         </div>
 
         {/* Table Section */}
@@ -217,12 +166,13 @@ export default function UserListPage() {
                       {user.roles && user.roles.join(', ')}
                     </td>
                     <td className="px-6 py-4 text-sm">
-                      <div className="flex items-center gap-2">
-                        {renderStatusSwitch(user)}
-                        <span className={`text-xs font-medium px-2 py-1 rounded-full ${user.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                          {user.is_active ? 'Active' : 'Blocked'}
-                        </span>
-                      </div>
+                      <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                        user.status === 'Active' ? 'bg-green-100 text-green-700' : 
+                        user.status === 'Blocked' ? 'bg-red-100 text-red-700' : 
+                        'bg-yellow-100 text-yellow-700'
+                      }`}>
+                        {user.status || 'Active'}
+                      </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-slate-500">
                       {new Date(user.created_at).toISOString().split('T')[0]}

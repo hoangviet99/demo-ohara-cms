@@ -17,7 +17,7 @@ export default function UserForm({ initialData, onSubmit, isLoading, isEdit = fa
     email: '',
     full_name: '',
     roles: ['Customer'],
-    is_active: true,
+    status: 'Active',
     ...initialData,
   });
 
@@ -31,16 +31,12 @@ export default function UserForm({ initialData, onSubmit, isLoading, isEdit = fa
     const { name, value, type } = e.target;
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked;
-      if (name === 'is_active') {
-        setFormData({ ...formData, [name]: checked });
+      // Handle roles checkbox
+      const currentRoles = formData.roles || [];
+      if (checked) {
+        setFormData({ ...formData, roles: [...currentRoles, value] });
       } else {
-        // Handle roles checkbox
-        const currentRoles = formData.roles || [];
-        if (checked) {
-          setFormData({ ...formData, roles: [...currentRoles, value] });
-        } else {
-          setFormData({ ...formData, roles: currentRoles.filter((r) => r !== value) });
-        }
+        setFormData({ ...formData, roles: currentRoles.filter((r) => r !== value) });
       }
     } else {
       setFormData({ ...formData, [name]: value });
@@ -124,20 +120,19 @@ export default function UserForm({ initialData, onSubmit, isLoading, isEdit = fa
         </div>
       </div>
 
-      {!isEdit && (
-        <div>
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              name="is_active"
-              checked={formData.is_active}
-              onChange={handleChange}
-              className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
-            />
-            <span className="text-sm font-medium text-slate-700">Active</span>
-          </label>
-        </div>
-      )}
+      <div>
+        <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
+        <select
+          name="status"
+          value={formData.status || 'Active'}
+          onChange={handleChange}
+          className="w-full md:w-1/2 rounded-lg border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+        >
+          <option value="Active">Active</option>
+          <option value="Blocked">Blocked</option>
+          <option value="Pending">Pending</option>
+        </select>
+      </div>
 
       <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
         <button
