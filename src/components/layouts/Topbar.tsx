@@ -1,4 +1,3 @@
-import React from 'react';
 import { ShoppingBagIcon } from '../icons/ShoppingBagIcon';
 import { BellIcon } from '../icons/BellIcon';
 import { ChevronDownIcon } from '../icons/ChevronDownIcon';

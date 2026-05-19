@@ -1,4 +1,3 @@
-import React from "react";
 import { IconWrapper } from "./index";
 import type { IconProps } from "./index";
 
