@@ -35,13 +35,16 @@ export default function UserListPage() {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const res = await userApi.getUsers({
+      const params: any = {
         page: filters.page,
         limit: filters.limit,
         keyword: filters.keyword,
         role: filters.role,
-        status: filters.status,
-      });
+      };
+      if (filters.status !== 'All') {
+        params.is_active = filters.status === 'active';
+      }
+      const res = await userApi.getUsers(params);
       setData(res.data);
     } catch (error) {
       console.error('Failed to fetch users', error);
@@ -198,9 +201,6 @@ export default function UserListPage() {
                     <td className="px-6 py-4 text-sm">
                       <div className="flex items-center gap-2">
                         {renderStatusSwitch(user)}
-                        <span className={`text-xs font-medium px-2 py-1 rounded-full ${user.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                          {user.is_active ? 'Active' : 'Blocked'}
-                        </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-slate-500">

@@ -2,7 +2,7 @@ import axiosClient from '../axiosClient';
 import type { User, PaginatedData, ApiResponse } from '../../types/user';
 
 export const userApi = {
-  getUsers(params?: { page?: number; limit?: number; keyword?: string; role?: string; status?: string }): Promise<ApiResponse<PaginatedData<User>>> {
+  getUsers(params?: { page?: number; limit?: number; keyword?: string; role?: string; is_active?: boolean }): Promise<ApiResponse<PaginatedData<User>>> {
     return axiosClient.get('/users', { params });
   },
   getUser(id: number): Promise<ApiResponse<User>> {
