@@ -9,7 +9,7 @@ export default function NotFoundPage() {
         to="/login"
         className="rounded-lg bg-slate-800 px-4 py-2 text-white"
       >
-        Back to login
+        Quay lại
       </Link>
     </div>
   );

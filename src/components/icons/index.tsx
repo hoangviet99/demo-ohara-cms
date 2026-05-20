@@ -36,3 +36,22 @@ export const IconWrapper = ({
     </svg>
   );
 };
+
+export { BellIcon } from "./BellIcon";
+export { ChevronDownIcon } from "./ChevronDownIcon";
+export { ChevronLeftIcon } from "./ChevronLeftIcon";
+export { EyeIcon } from "./EyeIcon";
+export { FolderOpenIcon } from "./FolderOpenIcon";
+export { ImageIcon } from "./ImageIcon";
+export { LayoutDashboardIcon } from "./LayoutDashboardIcon";
+export { LogOutIcon } from "./LogOutIcon";
+export { PackageIcon } from "./PackageIcon";
+export { PencilIcon } from "./PencilIcon";
+export { SearchIcon } from "./SearchIcon";
+export { SettingsIcon } from "./SettingsIcon";
+export { ShoppingBagIcon } from "./ShoppingBagIcon";
+export { ShoppingCartIcon } from "./ShoppingCartIcon";
+export { SpinnerIcon } from "./SpinnerIcon";
+export { TrashIcon } from "./TrashIcon";
+export { UserGroupIcon } from "./UserGroupIcon";
+export { UserIcon } from "./UserIcon";
