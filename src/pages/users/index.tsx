@@ -155,7 +155,7 @@ export default function UserListPage() {
               options={[
                 { value: 'All', label: 'Status: All' },
                 { value: 'active', label: 'Active' },
-                { value: 'blocked', label: 'Blocked' },
+                { value: 'inactive', label: 'Inactive' },
               ]}
             />
           </div>
