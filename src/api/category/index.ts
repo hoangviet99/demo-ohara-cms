@@ -20,5 +20,8 @@ export const categoryApi = {
   },
   updateStatus(id: number, isActive: boolean): Promise<ApiResponse<Category>> {
     return axiosClient.patch(`/categories/${id}/status`, { is_active: isActive });
+  },
+  getListCommon(params?: { is_active?: boolean }): Promise<ApiResponse<Category[]>> {
+    return axiosClient.get('/categories/list-common', { params });
   }
 };
