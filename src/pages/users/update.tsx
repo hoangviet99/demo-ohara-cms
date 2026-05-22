@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate, useParams, useSearchParams } from 'react-router';
 import UserForm from './components/UserForm';
 import { userApi } from '../../api/user';
 import type { User } from '../../types/user';
@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 export default function UpdateUserPage() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -26,13 +27,15 @@ export default function UpdateUserPage() {
     }
   };
 
+  const fromPage = searchParams.get("fromPage");
+
   const handleSubmit = async (data: Partial<User>) => {
     if (!id) return;
     setIsLoading(true);
     try {
       await userApi.updateUser(parseInt(id), data);
       toast.success('User updated successfully');
-      navigate('/users');
+      navigate(fromPage ? `/users?page=${fromPage}` : '/users');
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to update user');
     } finally {

@@ -1,4 +1,4 @@
-interface ProductPaginationProps {
+interface PaginationProps {
   page: number;
   totalPages: number;
   total: number;
@@ -6,13 +6,7 @@ interface ProductPaginationProps {
   onPageChange: (page: number) => void;
 }
 
-export function ProductPagination({
-  page,
-  totalPages,
-  total,
-  limit,
-  onPageChange,
-}: ProductPaginationProps) {
+export function Pagination({ page, totalPages, total, limit, onPageChange }: PaginationProps) {
   if (total === 0) {
     return null;
   }
@@ -34,12 +28,16 @@ export function ProductPagination({
     return pages;
   };
 
+  const pageNumbers = getPageNumbers();
+  const showEllipsisStart = page > 4 && totalPages > 5;
+  const showEllipsisEnd = page < totalPages - 3 && totalPages > 5;
+
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
       <p className="text-sm text-slate-500">
         Showing {(page - 1) * limit + 1} to {Math.min(page * limit, total)} of {total} results
       </p>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         <button
           onClick={() => onPageChange(Math.max(1, page - 1))}
           disabled={page === 1}
@@ -47,11 +45,24 @@ export function ProductPagination({
         >
           Previous
         </button>
-        {getPageNumbers().map((pageNum) => (
+
+        {showEllipsisStart && (
+          <>
+            <button
+              onClick={() => onPageChange(1)}
+              className="w-8 h-8 flex items-center justify-center rounded-md text-sm border border-slate-200 text-slate-600 hover:bg-slate-50"
+            >
+              1
+            </button>
+            <span className="px-1 text-slate-400">...</span>
+          </>
+        )}
+
+        {pageNumbers.map((pageNum) => (
           <button
             key={pageNum}
             onClick={() => onPageChange(pageNum)}
-            className={`rounded-lg px-3 py-2 text-sm transition ${
+            className={`w-8 h-8 flex items-center justify-center rounded-md text-sm transition ${
               page === pageNum
                 ? "bg-blue-600 text-white"
                 : "border border-slate-200 text-slate-600 hover:bg-slate-50"
@@ -60,6 +71,19 @@ export function ProductPagination({
             {pageNum}
           </button>
         ))}
+
+        {showEllipsisEnd && (
+          <>
+            <span className="px-1 text-slate-400">...</span>
+            <button
+              onClick={() => onPageChange(totalPages)}
+              className="w-8 h-8 flex items-center justify-center rounded-md text-sm border border-slate-200 text-slate-600 hover:bg-slate-50"
+            >
+              {totalPages}
+            </button>
+          </>
+        )}
+
         <button
           onClick={() => onPageChange(Math.min(totalPages, page + 1))}
           disabled={page === totalPages}

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate, useParams, useSearchParams } from 'react-router';
 import CategoryForm from './components/CategoryForm';
 import { categoryApi } from '../../api/category';
 import type { Category } from '../../types/category';
@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 export default function UpdateCategoryPage() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const [category, setCategory] = useState<Category | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -26,13 +27,15 @@ export default function UpdateCategoryPage() {
     }
   };
 
+  const fromPage = searchParams.get("fromPage");
+
   const handleSubmit = async (data: Partial<Category>) => {
     if (!id) return;
     setIsLoading(true);
     try {
       await categoryApi.updateCategory(parseInt(id), data);
       toast.success('Category updated successfully');
-      navigate('/categories');
+      navigate(fromPage ? `/categories?page=${fromPage}` : '/categories');
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to update category');
     } finally {

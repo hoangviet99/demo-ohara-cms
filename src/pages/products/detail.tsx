@@ -119,6 +119,13 @@ export default function DetailPage() {
           </div>
 
           <div className="space-y-3">
+            {/* Category */}
+            <div className="flex justify-between border-b border-slate-100 pb-3">
+              <span className="text-sm text-slate-500">Category</span>
+              <span className="text-sm font-medium text-slate-900">
+                {product.category ? product.category.name : "—"}
+              </span>
+            </div>
             <div className="flex justify-between border-b border-slate-100 pb-3">
               <span className="text-sm text-slate-500">Slug</span>
               <span className="text-sm font-medium text-slate-900">{product.slug || "-"}</span>
@@ -141,6 +148,18 @@ export default function DetailPage() {
                 </span>
               </div>
             )}
+            <div className="flex justify-between border-b border-slate-100 pb-3">
+              <span className="text-sm text-slate-500">Created At</span>
+              <span className="text-sm font-medium text-slate-900">
+                {new Date(product.created_at).toLocaleDateString()}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm text-slate-500">Updated At</span>
+              <span className="text-sm font-medium text-slate-900">
+                {new Date(product.updated_at).toLocaleDateString()}
+              </span>
+            </div>
           </div>
         </div>
       </div>

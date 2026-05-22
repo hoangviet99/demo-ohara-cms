@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useParams, useNavigate, useSearchParams } from "react-router";
 import ProductForm from "./components/ProductForm";
 import type { Product } from "../../types/product";
 import { getProduct } from "../../api/product";
@@ -8,6 +8,7 @@ import { SpinnerIcon } from "../../components/icons";
 export default function EditPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -37,12 +38,14 @@ export default function EditPage() {
     fetchProduct();
   }, [id]);
 
+  const fromPage = searchParams.get("fromPage");
+
   const handleSuccess = () => {
-    navigate("/products");
+    navigate(fromPage ? `/products?page=${fromPage}` : "/products");
   };
 
   const handleCancel = () => {
-    navigate("/products");
+    navigate(fromPage ? `/products?page=${fromPage}` : "/products");
   };
 
   if (loading) {

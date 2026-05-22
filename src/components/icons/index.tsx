@@ -40,6 +40,7 @@ export const IconWrapper = ({
 export { BellIcon } from "./BellIcon";
 export { ChevronDownIcon } from "./ChevronDownIcon";
 export { ChevronLeftIcon } from "./ChevronLeftIcon";
+export { DetailIcon } from "./DetailIcon";
 export { EyeIcon } from "./EyeIcon";
 export { FolderOpenIcon } from "./FolderOpenIcon";
 export { ImageIcon } from "./ImageIcon";

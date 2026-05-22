@@ -3,6 +3,8 @@ import { CustomButton } from "../../../components/common/CustomButton";
 import { SpinnerIcon } from "../../../components/icons";
 import { generateSlug, generateSKU } from "../../../utils/slugify";
 import type { Product, CreateProductRequest, UpdateProductRequest } from "../../../types/product";
+import type { Category } from "../../../types/category";
+import { categoryApi } from "../../../api/category";
 
 interface ProductFormProps {
   mode: "create" | "edit";
@@ -25,6 +27,7 @@ export default function ProductForm({
     price: "",
     sale_price: "",
     thumbnail: "",
+    category_id: null,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -32,6 +35,19 @@ export default function ProductForm({
   const [slugApiError, setSlugApiError] = useState<string>("");
   const [skuEdited, setSkuEdited] = useState(false);
   const [slugEdited, setSlugEdited] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await categoryApi.getListCommon({});
+        setCategories(res.data || []);
+      } catch (err) {
+        console.error("Failed to fetch categories", err);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     if (initialData && mode === "edit") {
@@ -43,6 +59,7 @@ export default function ProductForm({
         price: String(initialData.price),
         sale_price: initialData.sale_price ? String(initialData.sale_price) : "",
         thumbnail: initialData.thumbnail,
+        category_id: initialData.category_id ?? null,
       });
       setSkuEdited(false);
       setSlugEdited(false);
@@ -81,7 +98,7 @@ export default function ProductForm({
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     const stringValue = String(value ?? "");
@@ -91,6 +108,14 @@ export default function ProductForm({
       handleSlugChange(stringValue);
     } else if (name === "sku") {
       handleSKUChange(stringValue);
+    } else if (name === "category_id") {
+      setFormData((prev) => ({
+        ...prev,
+        category_id: stringValue === "" ? null : Number(stringValue),
+      }));
+      if (errors.category_id) {
+        setErrors((prev) => ({ ...prev, category_id: "" }));
+      }
     } else {
       setFormData((prev) => ({ ...prev, [name]: stringValue }));
       if (errors[name]) {
@@ -161,184 +186,216 @@ export default function ProductForm({
   };
 
   return (
-    <div className="rounded-lg bg-white p-6 shadow-sm">
-      <h2 className="mb-6 text-xl font-semibold text-slate-900">
-        {mode === "create" ? "Add New Product" : "Edit Product"}
-      </h2>
-
+    <div className="space-y-6">
       {apiError && (
-        <div className="mb-4 rounded-lg bg-red-50 p-4 text-sm text-red-600">
+        <div className="rounded-lg bg-red-50 p-4 text-sm text-red-600">
           {apiError}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Name */}
-        <div>
-          <label htmlFor="name" className="mb-1 block text-sm font-medium text-slate-700">
-            Product Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={(e) => handleNameChange(e.target.value)}
-            className={`w-full rounded-lg border px-4 py-2.5 text-sm transition focus:outline-none focus:ring-2 ${
-              errors.name
-                ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                : "border-slate-200 focus:border-blue-500 focus:ring-blue-200"
-            }`}
-            placeholder="Enter product name"
-          />
-          {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name}</p>}
-        </div>
-
-        {/* Slug */}
-        <div>
-          <label htmlFor="slug" className="mb-1 block text-sm font-medium text-slate-700">
-            Slug <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            id="slug"
-            name="slug"
-            value={formData.slug}
-            onChange={handleChange}
-            className={`w-full rounded-lg border px-4 py-2.5 text-sm transition focus:outline-none focus:ring-2 ${
-              errors.slug
-                ? "border-red-300 focus:border-red-500 focus:ring-red-200"
-                : "border-slate-200 focus:border-blue-500 focus:ring-blue-200"
-            }`}
-            placeholder="Auto-generated from name"
-          />
-          {errors.slug && <p className="mt-1 text-xs text-red-500">{errors.slug}</p>}
-          {slugApiError && <p className="mt-1 text-xs text-red-500">{slugApiError}</p>}
-          <p className="mt-1 text-xs text-slate-400">
-            {slugEdited
-              ? "Custom slug - will not auto-regenerate when name changes"
-              : "Auto-generated from product name. Appears in the product URL."}
-          </p>
-        </div>
-
-        {/* SKU */}
-        <div>
-          <label htmlFor="sku" className="mb-1 block text-sm font-medium text-slate-700">
-            SKU
-          </label>
-          <input
-            type="text"
-            id="sku"
-            name="sku"
-            value={formData.sku}
-            onChange={(e) => handleSKUChange(e.target.value)}
-            className="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-            placeholder="Auto-generated from name"
-          />
-          <p className="mt-1 text-xs text-slate-400">
-            {skuEdited
-              ? "Custom SKU - will not auto-regenerate when name changes"
-              : "Auto-generated from product name. Used for inventory management."}
-          </p>
-        </div>
-
-        {/* Description */}
-        <div>
-          <label htmlFor="description" className="mb-1 block text-sm font-medium text-slate-700">
-            Description
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            rows={4}
-            className="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-            placeholder="Enter product description"
-          />
-        </div>
-
-        {/* Pricing */}
-        <div className="grid grid-cols-2 gap-4">
-          {/* Price */}
-          <div>
-            <label htmlFor="price" className="mb-1 block text-sm font-medium text-slate-700">
-              Price <span className="text-red-500">*</span>
-            </label>
-            <div className="relative">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Table 1: Basic Information */}
+        <div className="rounded-lg bg-white p-6 shadow-sm border border-slate-200">
+          <h3 className="mb-5 text-base font-semibold text-slate-800">Basic Information</h3>
+          <div className="space-y-5">
+            {/* Name */}
+            <div>
+              <label htmlFor="name" className="mb-1 block text-sm font-medium text-slate-700">
+                Product Name <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
-                id="price"
-                name="price"
-                value={formData.price}
-                onChange={handleChange}
-                className={`w-full rounded-lg border px-4 py-2.5 pr-8 text-sm transition focus:outline-none focus:ring-2 ${
-                  errors.price
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={(e) => handleNameChange(e.target.value)}
+                className={`w-full rounded-lg border px-4 py-2.5 text-sm transition focus:outline-none focus:ring-2 ${
+                  errors.name
                     ? "border-red-300 focus:border-red-500 focus:ring-red-200"
                     : "border-slate-200 focus:border-blue-500 focus:ring-blue-200"
                 }`}
-                placeholder="0.00"
+                placeholder="Enter product name"
               />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">VND</span>
+              {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name}</p>}
             </div>
-            {errors.price && <p className="mt-1 text-xs text-red-500">{errors.price}</p>}
-          </div>
 
-          {/* Sale Price */}
-          <div>
-            <label htmlFor="sale_price" className="mb-1 block text-sm font-medium text-slate-700">
-              Sale Price
-            </label>
-            <div className="relative">
+            {/* Slug */}
+            <div>
+              <label htmlFor="slug" className="mb-1 block text-sm font-medium text-slate-700">
+                Slug <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
-                id="sale_price"
-                name="sale_price"
-                value={formData.sale_price}
+                id="slug"
+                name="slug"
+                value={formData.slug}
                 onChange={handleChange}
-                className={`w-full rounded-lg border px-4 py-2.5 pr-8 text-sm transition focus:outline-none focus:ring-2 ${
-                  errors.sale_price
+                className={`w-full rounded-lg border px-4 py-2.5 text-sm transition focus:outline-none focus:ring-2 ${
+                  errors.slug
                     ? "border-red-300 focus:border-red-500 focus:ring-red-200"
                     : "border-slate-200 focus:border-blue-500 focus:ring-blue-200"
                 }`}
-                placeholder="0.00"
+                placeholder="Auto-generated from name"
               />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">VND</span>
+              {errors.slug && <p className="mt-1 text-xs text-red-500">{errors.slug}</p>}
+              {slugApiError && <p className="mt-1 text-xs text-red-500">{slugApiError}</p>}
+              <p className="mt-1 text-xs text-slate-400">
+                {slugEdited
+                  ? "Custom slug — will not auto-regenerate when name changes"
+                  : "Auto-generated from product name. Appears in the product URL."}
+              </p>
             </div>
-            {errors.sale_price && <p className="mt-1 text-xs text-red-500">{errors.sale_price}</p>}
+
+            {/* SKU */}
+            <div>
+              <label htmlFor="sku" className="mb-1 block text-sm font-medium text-slate-700">
+                SKU
+              </label>
+              <input
+                type="text"
+                id="sku"
+                name="sku"
+                value={formData.sku}
+                onChange={(e) => handleSKUChange(e.target.value)}
+                className="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                placeholder="Auto-generated from name"
+              />
+              <p className="mt-1 text-xs text-slate-400">
+                {skuEdited
+                  ? "Custom SKU — will not auto-regenerate when name changes"
+                  : "Auto-generated from product name. Used for inventory management."}
+              </p>
+            </div>
+
+            {/* Category */}
+            <div>
+              <label htmlFor="category_id" className="mb-1 block text-sm font-medium text-slate-700">
+                Category
+              </label>
+              <select
+                id="category_id"
+                name="category_id"
+                value={formData.category_id ?? ""}
+                onChange={handleChange}
+                className="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 bg-white"
+              >
+                <option value="">— Select a category —</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={String(cat.id)}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+              {errors.category_id && (
+                <p className="mt-1 text-xs text-red-500">{errors.category_id}</p>
+              )}
+            </div>
+
+            {/* Description */}
+            <div>
+              <label htmlFor="description" className="mb-1 block text-sm font-medium text-slate-700">
+                Description
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                rows={4}
+                className="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                placeholder="Enter product description"
+              />
+            </div>
           </div>
         </div>
 
-        {/* Thumbnail */}
-        <div>
-          <label htmlFor="thumbnail" className="mb-1 block text-sm font-medium text-slate-700">
-            Thumbnail URL
-          </label>
-          <input
-            type="url"
-            id="thumbnail"
-            name="thumbnail"
-            value={formData.thumbnail}
-            onChange={handleChange}
-            className="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
-            placeholder="https://example.com/image.jpg"
-          />
-          {formData.thumbnail && (
-            <div className="mt-2">
-              <img
-                src={formData.thumbnail}
-                alt="Thumbnail preview"
-                className="h-20 w-20 rounded-lg border border-slate-200 object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = "none";
-                }}
-              />
+        {/* Table 2: Pricing & Media */}
+        <div className="rounded-lg bg-white p-6 shadow-sm border border-slate-200">
+          <h3 className="mb-5 text-base font-semibold text-slate-800">Pricing &amp; Media</h3>
+          <div className="space-y-5">
+            {/* Pricing */}
+            <div className="grid grid-cols-2 gap-4">
+              {/* Price */}
+              <div>
+                <label htmlFor="price" className="mb-1 block text-sm font-medium text-slate-700">
+                  Price <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    id="price"
+                    name="price"
+                    value={formData.price}
+                    onChange={handleChange}
+                    className={`w-full rounded-lg border px-4 py-2.5 pr-10 text-sm transition focus:outline-none focus:ring-2 ${
+                      errors.price
+                        ? "border-red-300 focus:border-red-500 focus:ring-red-200"
+                        : "border-slate-200 focus:border-blue-500 focus:ring-blue-200"
+                    }`}
+                    placeholder="0.00"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">VND</span>
+                </div>
+                {errors.price && <p className="mt-1 text-xs text-red-500">{errors.price}</p>}
+              </div>
+
+              {/* Sale Price */}
+              <div>
+                <label htmlFor="sale_price" className="mb-1 block text-sm font-medium text-slate-700">
+                  Sale Price
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    id="sale_price"
+                    name="sale_price"
+                    value={formData.sale_price}
+                    onChange={handleChange}
+                    className={`w-full rounded-lg border px-4 py-2.5 pr-10 text-sm transition focus:outline-none focus:ring-2 ${
+                      errors.sale_price
+                        ? "border-red-300 focus:border-red-500 focus:ring-red-200"
+                        : "border-slate-200 focus:border-blue-500 focus:ring-blue-200"
+                    }`}
+                    placeholder="0.00"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">VND</span>
+                </div>
+                {errors.sale_price && <p className="mt-1 text-xs text-red-500">{errors.sale_price}</p>}
+              </div>
             </div>
-          )}
+
+            {/* Thumbnail */}
+            <div>
+              <label htmlFor="thumbnail" className="mb-1 block text-sm font-medium text-slate-700">
+                Thumbnail URL
+              </label>
+              <input
+                type="url"
+                id="thumbnail"
+                name="thumbnail"
+                value={formData.thumbnail}
+                onChange={handleChange}
+                className="w-full rounded-lg border border-slate-200 px-4 py-2.5 text-sm transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                placeholder="https://example.com/image.jpg"
+              />
+              {formData.thumbnail && (
+                <div className="mt-2">
+                  <img
+                    src={formData.thumbnail}
+                    alt="Thumbnail preview"
+                    className="h-20 w-20 rounded-lg border border-slate-200 object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = "none";
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Actions */}
-        <div className="flex items-center justify-end gap-3 border-t border-slate-100 pt-5">
+        <div className="flex items-center justify-end gap-3 pb-4">
           <CustomButton
             type="button"
             onClick={onCancel}
@@ -349,7 +406,7 @@ export default function ProductForm({
           </CustomButton>
           <CustomButton
             type="submit"
-            className="min-w-[120px]"
+            className="min-w-[140px]"
             disabled={isSubmitting}
           >
             {isSubmitting ? (

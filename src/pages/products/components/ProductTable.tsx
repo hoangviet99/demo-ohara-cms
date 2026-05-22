@@ -1,5 +1,8 @@
+import type { ChangeEvent } from "react";
 import type { Product } from "../../../types/product";
-import { EyeIcon, PencilIcon, TrashIcon, ImageIcon } from "../../../components/icons";
+import { ImageIcon } from "../../../components/icons";
+import { TableActions } from "../../../components/common/TableActions";
+import { SwitchButton } from "../../../components/common/SwitchButton";
 
 interface ProductTableProps {
   products: Product[];
@@ -31,6 +34,9 @@ export function ProductTable({
               Product
             </th>
             <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
+              Category
+            </th>
+            <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
               Slug
             </th>
             <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
@@ -51,7 +57,7 @@ export function ProductTable({
           {products.length === 0 ? (
             <tr>
               <td
-                colSpan={6}
+                colSpan={7}
                 className="px-4 py-8 text-center text-sm text-slate-500"
               >
                 No products found
@@ -88,6 +94,15 @@ export function ProductTable({
                     </div>
                   </div>
                 </td>
+                <td className="whitespace-nowrap px-4 py-3 text-sm text-slate-600">
+                  {product.category ? (
+                    <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
+                      {product.category.name}
+                    </span>
+                  ) : (
+                    <span className="text-xs text-slate-400">—</span>
+                  )}
+                </td>
                 <td className="whitespace-nowrap px-4 py-3 text-xs text-slate-500">
                   {product.slug || "-"}
                 </td>
@@ -106,41 +121,17 @@ export function ProductTable({
                     )}
                 </td>
                 <td className="whitespace-nowrap px-4 py-3">
-                  <button
-                    onClick={() => onToggleStatus(product)}
-                    className={`rounded-full px-2.5 py-1 text-xs font-medium transition ${
-                      product.is_active
-                        ? "bg-green-100 text-green-700 hover:bg-green-200"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                    }`}
-                  >
-                    {product.is_active ? "Active" : "Inactive"}
-                  </button>
+                  <SwitchButton
+                    checked={product.is_active}
+                    onChange={() => onToggleStatus(product)}
+                  />
                 </td>
                 <td className="whitespace-nowrap px-4 py-3 text-right text-sm">
-                  <div className="flex items-center justify-end gap-1">
-                    <button
-                      onClick={() => onViewDetail(product)}
-                      className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-blue-600"
-                      title="View Detail"
-                    >
-                      <EyeIcon size={16} />
-                    </button>
-                    <button
-                      onClick={() => onEdit(product)}
-                      className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
-                      title="Edit"
-                    >
-                      <PencilIcon size={16} />
-                    </button>
-                    <button
-                      onClick={() => onDelete(product)}
-                      className="rounded-lg p-2 text-red-400 transition hover:bg-red-50 hover:text-red-600"
-                      title="Delete"
-                    >
-                      <TrashIcon size={16} />
-                    </button>
-                  </div>
+                  <TableActions
+                    onDetail={() => onViewDetail(product)}
+                    onEdit={() => onEdit(product)}
+                    onDelete={() => onDelete(product)}
+                  />
                 </td>
               </tr>
             ))
